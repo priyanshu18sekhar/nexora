@@ -5,6 +5,6 @@ dotenv.config({ path: '.env.local' });
 
 export default defineConfig({
   datasource: {
-    url: process.env.DATABASE_URL,
+    url: process.env.DATABASE_URL?.replace('-pooler', ''),
   },
 });
