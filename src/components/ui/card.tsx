@@ -2,21 +2,24 @@ import * as React from "react";
 import { cn } from "@/src/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 
-const cardVariants = cva("rounded-xl border transition-all duration-200", {
-  variants: {
-    variant: {
-      default: "bg-card text-card-foreground border-border shadow-sm",
-      glass: "glass text-foreground",
-      ghost: "border-transparent bg-transparent",
-      elevated: "bg-card border-border shadow-md hover:shadow-lg",
-      gradient: "gradient-border bg-card text-card-foreground",
-      hover: "bg-card text-card-foreground border-border shadow-sm card-hover cursor-pointer",
+const cardVariants = cva(
+  "rounded-2xl border transition-all duration-200",
+  {
+    variants: {
+      variant: {
+        default:  "bg-card text-card-foreground border-border shadow-sm",
+        glass:    "glass-card text-foreground",
+        ghost:    "border-transparent bg-transparent shadow-none",
+        elevated: "bg-card border-border" +
+                  " [box-shadow:var(--shadow-sm)]" +
+                  " hover:[box-shadow:var(--shadow-md)]",
+        gradient: "gradient-border bg-card text-card-foreground [box-shadow:var(--shadow-sm)]",
+        hover:    "bg-card text-card-foreground border-border [box-shadow:var(--shadow-sm)] card-hover cursor-pointer",
+      },
     },
-  },
-  defaultVariants: {
-    variant: "default",
-  },
-});
+    defaultVariants: { variant: "default" },
+  }
+);
 
 interface CardProps
   extends React.HTMLAttributes<HTMLDivElement>,

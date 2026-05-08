@@ -11,37 +11,45 @@ interface ProvidersProps {
   children: React.ReactNode;
 }
 
-export function Providers({ children }: ProvidersProps) {
+function PayPalWrapper({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const showPayPal = mounted && paypalConfig.clientId && paypalConfig.clientId !== "your-paypal-client-id";
+  const showPayPal =
+    mounted &&
+    paypalConfig.clientId &&
+    paypalConfig.clientId !== "your-paypal-client-id" &&
+    paypalConfig.clientId !== "";
 
+  if (!showPayPal) return <>{children}</>;
+
+  return (
+    <PayPalScriptProvider
+      options={{
+        clientId: paypalConfig.clientId,
+        currency: paypalConfig.currency,
+        intent: paypalConfig.intent,
+      }}
+      deferLoading={true}
+    >
+      {children}
+    </PayPalScriptProvider>
+  );
+}
+
+export function Providers({ children }: ProvidersProps) {
   return (
     <SessionProvider>
       <ThemeProvider
         attribute="class"
-        defaultTheme="dark"
-        enableSystem
-        disableTransitionOnChange={false}
+        defaultTheme="light"
+        enableSystem={false}
+        disableTransitionOnChange
       >
-        {showPayPal ? (
-          <PayPalScriptProvider
-            options={{
-              clientId: paypalConfig.clientId,
-              currency: paypalConfig.currency,
-              intent: paypalConfig.intent,
-            }}
-            deferLoading={true}
-          >
-            {children}
-          </PayPalScriptProvider>
-        ) : (
-          children
-        )}
+        <PayPalWrapper>{children}</PayPalWrapper>
         <Toaster
           position="top-right"
           richColors
