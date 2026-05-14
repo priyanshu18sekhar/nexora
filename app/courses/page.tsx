@@ -39,7 +39,18 @@ const MOCK_COURSES = [
 
 export default async function CoursesPage() {
   // Fetch courses from DB (if any)
-  let courses: any[] = [];
+  let courses: {
+    id: string;
+    title: string;
+    instructor: { name: string; image: string | null };
+    rating: number;
+    totalRatings: number;
+    price: number;
+    level: string;
+    duration: number;
+    thumbnail: string | null;
+    category: { name: string } | null;
+  }[] = [];
   try {
     courses = await db.course.findMany({
       where: { status: "PUBLISHED" },
@@ -151,7 +162,7 @@ export default async function CoursesPage() {
 
                   <div className="flex items-center justify-between pt-4 border-t border-border">
                     <span className="font-bold text-lg text-primary">
-                      {course.price === 0 ? "Free" : `$${course.price}`}
+                      {course.price === 0 ? "Free" : `₹${course.price}`}
                     </span>
                     <span className="text-xs font-medium px-2 py-1 bg-muted rounded-md">
                       {course.level}

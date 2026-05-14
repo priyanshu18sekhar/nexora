@@ -34,7 +34,18 @@ const MOCK_INTERNSHIPS = [
 ];
 
 export default async function InternshipsPage() {
-  let internships: any[] = [];
+  let internships: {
+    id: string;
+    title: string;
+    company: string;
+    location: string;
+    isRemote: boolean;
+    stipend: number | null;
+    duration: string;
+    createdAt: Date;
+    skills: string[];
+    companyLogo?: string | null;
+  }[] = [];
   try {
     internships = await db.internship.findMany({
       where: { status: "OPEN" },

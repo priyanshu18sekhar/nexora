@@ -30,12 +30,13 @@ const MOCK_INTERNSHIP = {
 export default async function InternshipDetailsPage({
   params,
 }: {
-  params: { internshipId: string };
+  params: Promise<{ internshipId: string }>;
 }) {
+  const { internshipId } = await params;
   let internship = null;
   try {
     internship = await db.internship.findUnique({
-      where: { id: params.internshipId },
+      where: { id: internshipId },
       include: {
         recruiter: { select: { name: true, image: true, headline: true } }
       }

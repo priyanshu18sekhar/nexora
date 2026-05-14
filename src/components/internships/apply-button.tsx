@@ -40,7 +40,7 @@ export function InternshipApplyButton({ internshipId, className, size = "default
   if (applied) {
     return (
       <Button 
-        className={\`\${className} bg-emerald-500 hover:bg-emerald-600\`}
+        className={`${className} bg-emerald-500 hover:bg-emerald-600`}
         size={size}
         disabled
       >

@@ -55,12 +55,13 @@ const MOCK_COURSE = {
 export default async function CourseDetailsPage({
   params,
 }: {
-  params: { courseId: string };
+  params: Promise<{ courseId: string }>;
 }) {
+  const { courseId } = await params;
   let course = null;
   try {
     course = await db.course.findUnique({
-      where: { id: params.courseId },
+      where: { id: courseId },
       include: {
         instructor: true,
         sections: {
@@ -150,9 +151,9 @@ export default async function CourseDetailsPage({
             {/* What you'll learn */}
             <Card variant="elevated">
               <CardContent className="p-6 sm:p-8">
-                <h2 className="text-xl font-bold mb-6">What you'll learn</h2>
+                <h2 className="text-xl font-bold mb-6">What you&apos;ll learn</h2>
                 <div className="grid sm:grid-cols-2 gap-4">
-                  {(((displayCourse as any).whatYouWillLearn) || []).map((item: string, idx: number) => (
+                  {((displayCourse as unknown as { whatYouWillLearn?: string[] }).whatYouWillLearn || []).map((item: string, idx: number) => (
                     <div key={idx} className="flex items-start gap-3">
                       <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
                       <span className="text-sm text-muted-foreground leading-relaxed">{item}</span>
@@ -212,7 +213,7 @@ export default async function CourseDetailsPage({
             <div>
               <h2 className="text-xl font-bold mb-4">Requirements</h2>
               <ul className="list-disc pl-5 space-y-2 text-muted-foreground">
-                {(((displayCourse as any).requirements) || []).map((req: string, idx: number) => (
+                {((displayCourse as unknown as { requirements?: string[] }).requirements || []).map((req: string, idx: number) => (
                   <li key={idx}>{req}</li>
                 ))}
               </ul>

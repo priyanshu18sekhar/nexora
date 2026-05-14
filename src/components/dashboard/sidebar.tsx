@@ -29,6 +29,7 @@ import {
   Sun,
   Moon,
   HelpCircle,
+  Video,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { cn } from "@/src/lib/utils";
@@ -39,21 +40,19 @@ import { dashboardNavLinks } from "@/src/config";
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   LayoutDashboard, BookOpen, Briefcase, TrendingUp, Award,
   Bookmark, User, Users, Calendar, DollarSign, BarChart2,
-  FileText, CreditCard, Settings,
+  FileText, CreditCard, Settings, Video,
 };
 
-type UserRole = "STUDENT" | "MENTOR" | "RECRUITER" | "ADMIN";
+type UserRole = "STUDENT" | "RECRUITER" | "ADMIN";
 
 const roleColors: Record<UserRole, string> = {
   STUDENT:   "from-violet-500 to-indigo-600",
-  MENTOR:    "from-emerald-500 to-teal-600",
   RECRUITER: "from-amber-500 to-orange-600",
   ADMIN:     "from-rose-500 to-pink-600",
 };
 
 const roleBadgeColors: Record<UserRole, string> = {
   STUDENT:   "bg-violet-50 text-violet-700 dark:bg-violet-500/10 dark:text-violet-400",
-  MENTOR:    "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400",
   RECRUITER: "bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400",
   ADMIN:     "bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400",
 };
@@ -70,7 +69,7 @@ export function DashboardSidebar() {
   const roleGradient = roleColors[role] ?? roleColors.STUDENT;
   const roleBadge = roleBadgeColors[role] ?? roleBadgeColors.STUDENT;
 
-  const SidebarContent = () => (
+  const sidebarContent = (
     <div className="flex flex-col h-full">
       {/* Logo Header */}
       <div className={cn(
@@ -298,7 +297,7 @@ export function DashboardSidebar() {
           collapsed ? "w-[68px]" : "w-64"
         )}
       >
-        <SidebarContent />
+        {sidebarContent}
 
         {/* Collapse Toggle */}
         <button
@@ -362,7 +361,7 @@ export function DashboardSidebar() {
               transition={{ type: "spring", damping: 30, stiffness: 300 }}
               className="fixed left-0 top-0 bottom-0 w-72 bg-card border-r border-border z-50 lg:hidden shadow-xl"
             >
-              <SidebarContent />
+              {sidebarContent}
             </motion.aside>
           </>
         )}
