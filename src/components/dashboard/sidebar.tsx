@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
@@ -31,7 +31,7 @@ import {
   HelpCircle,
   Video,
 } from "lucide-react";
-import { useTheme } from "next-themes";
+import { useTheme } from "@/src/providers/theme-provider";
 import { cn } from "@/src/lib/utils";
 import { Avatar } from "@/src/components/ui/avatar";
 import { Badge } from "@/src/components/ui/badge";
@@ -63,6 +63,12 @@ export function DashboardSidebar() {
   const { theme, setTheme } = useTheme();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
 
   const role = (session?.user?.role as UserRole) ?? "STUDENT";
   const navItems = dashboardNavLinks[role] ?? dashboardNavLinks.STUDENT;
@@ -218,10 +224,13 @@ export function DashboardSidebar() {
           title={collapsed ? "Toggle theme" : undefined}
           aria-label="Toggle theme"
         >
-          {theme === "dark"
-            ? <Sun className="w-4 h-4 flex-shrink-0" />
-            : <Moon className="w-4 h-4 flex-shrink-0" />
-          }
+          {mounted ? (
+            theme === "dark"
+              ? <Sun className="w-4 h-4 flex-shrink-0" />
+              : <Moon className="w-4 h-4 flex-shrink-0" />
+          ) : (
+            <Moon className="w-4 h-4 flex-shrink-0 opacity-0" />
+          )}
           <AnimatePresence>
             {!collapsed && (
               <motion.span
@@ -230,7 +239,7 @@ export function DashboardSidebar() {
                 exit={{ opacity: 0, x: -8 }}
                 transition={{ duration: 0.2 }}
               >
-                {theme === "dark" ? "Light Mode" : "Dark Mode"}
+                {mounted ? (theme === "dark" ? "Light Mode" : "Dark Mode") : ""}
               </motion.span>
             )}
           </AnimatePresence>

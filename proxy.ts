@@ -6,7 +6,21 @@ import type { NextRequest } from "next/server";
 const { auth } = NextAuth(authConfig);
 
 // Routes that are accessible without authentication
-const publicRoutes = ["/", "/courses", "/internships", "/about", "/contact"];
+const publicRoutes = [
+  "/",
+  "/explore",
+  "/courses",
+  "/internships",
+  "/about",
+  "/contact",
+  "/pricing",
+  "/mentors",
+  "/live-classes",
+  "/certificates",
+  "/for-students",
+  "/for-professionals",
+  "/for-beginners",
+];
 const authRoutes = ["/login", "/register"];
 const apiAuthPrefix = "/api/auth";
 

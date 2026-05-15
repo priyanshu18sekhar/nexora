@@ -107,17 +107,11 @@ export async function POST(
           if (!existingCert) {
             // Get average quiz score for the course
             const courseQuizzes = await db.quiz.findMany({
-              where: {
-                lesson: {
-                  section: {
-                    courseId,
-                  },
-                },
-              },
+              where: { lesson: { section: { courseId } } },
               select: { id: true },
             });
 
-            let finalScore = score; // Default to this quiz score
+            let finalScore = score;
             if (courseQuizzes.length > 0) {
               const attempts = await db.quizAttempt.findMany({
                 where: {
@@ -125,25 +119,27 @@ export async function POST(
                   quizId: { in: courseQuizzes.map((q) => q.id) },
                 },
                 orderBy: { attemptedAt: "desc" },
-                distinct: ["quizId"], // Get latest attempt per quiz
+                distinct: ["quizId"],
               });
-              
               if (attempts.length > 0) {
                 const totalScore = attempts.reduce((acc, curr) => acc + curr.score, 0);
                 finalScore = totalScore / attempts.length;
               }
             }
 
+            // Free courses → cert is PENDING until user pays the certificate fee.
+            // Paid courses → cert is ISSUED immediately (already paid for enrollment).
+            const issueNow = !course.isFree;
             await db.certificate.create({
               data: {
                 userId: session.user.id,
                 courseId,
-                status: "ISSUED",
-                issuedAt: new Date(),
+                status: issueNow ? "ISSUED" : "PENDING",
+                issuedAt: issueNow ? new Date() : null,
                 score: finalScore,
               },
             });
-            certificateGenerated = true;
+            certificateGenerated = issueNow;
           }
         }
       }

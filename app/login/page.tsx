@@ -7,12 +7,13 @@ import { signIn } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
-import { Sparkles, Mail, Lock, Eye, EyeOff, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Sparkles, Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
 import { loginSchema, type LoginInput } from "@/src/lib/validations/auth";
+import { BrandPanel } from "@/src/components/auth/brand-panel";
 
 const GoogleIcon = () => (
   <svg className="w-4 h-4" viewBox="0 0 24 24">
@@ -23,6 +24,13 @@ const GoogleIcon = () => (
   </svg>
 );
 
+const roleRedirects: Record<string, string> = {
+  STUDENT:      "/dashboard/student",
+  PROFESSIONAL: "/dashboard/student",
+  ADMIN:        "/dashboard/admin",
+  RECRUITER:    "/dashboard/recruiter",
+  MENTOR:       "/dashboard/student",
+};
 
 function LoginFormContent() {
   const router = useRouter();
@@ -39,11 +47,25 @@ function LoginFormContent() {
   const onSubmit = async (data: LoginInput) => {
     setIsLoading(true);
     try {
-      const result = await signIn("credentials", { email: data.email, password: data.password, redirect: false, callbackUrl });
-      if (result?.error) { toast.error("Invalid email or password. Please try again."); }
-      else { toast.success("Welcome back!"); router.push(callbackUrl); router.refresh(); }
-    } catch { toast.error("Something went wrong. Please try again."); }
-    finally { setIsLoading(false); }
+      const result = await signIn("credentials", { email: data.email, password: data.password, redirect: false });
+      if (result?.error) {
+        toast.error("Invalid email or password. Please try again.");
+      } else {
+        toast.success("Welcome back!");
+        const sessionRes = await fetch("/api/auth/session");
+        const sessionData = await sessionRes.json();
+        const role = sessionData?.user?.role as string | undefined;
+        const dest = callbackUrl !== "/dashboard/student"
+          ? callbackUrl
+          : (role ? roleRedirects[role] ?? "/dashboard/student" : "/dashboard/student");
+        router.push(dest);
+        router.refresh();
+      }
+    } catch {
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSocialLogin = async (provider: string) => {
@@ -54,63 +76,30 @@ function LoginFormContent() {
 
   return (
     <div className="min-h-screen flex bg-background">
-      {/* Left: Brand panel */}
-      <div
-        className="hidden lg:flex lg:w-[45%] relative overflow-hidden flex-col items-center justify-center p-12"
-        style={{ background: "linear-gradient(135deg, #5046e5 0%, #7c3aed 60%, #2563eb 100%)" }}
-      >
-        {/* Mesh texture */}
-        <div className="absolute inset-0 bg-dot-pattern opacity-10" />
-        <div className="absolute top-1/4 -left-20 w-80 h-80 bg-white/8 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 -right-20 w-64 h-64 bg-white/8 rounded-full blur-3xl" />
-
-        <div className="relative text-white text-center max-w-sm z-10">
-          <Link href="/" className="flex items-center gap-3 justify-center mb-10">
-            <div className="w-11 h-11 rounded-2xl bg-white/15 flex items-center justify-center backdrop-blur-sm">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-2xl font-bold font-display">Nexora</span>
-          </Link>
-
-          <h2 className="text-3xl font-bold font-display mb-4 leading-tight">
-            Welcome back to your learning journey
-          </h2>
-          <p className="text-white/65 leading-relaxed text-sm">
-            Sign in to access your courses, track your progress, view internship applications, and connect with mentors.
-          </p>
-
-          <div className="mt-10 grid grid-cols-3 gap-3">
-            {[{ value: "50K+", label: "Learners" }, { value: "1,200+", label: "Courses" }, { value: "95%", label: "Success Rate" }].map((s) => (
-              <div key={s.label} className="p-4 rounded-2xl bg-white/10 backdrop-blur-sm">
-                <div className="text-2xl font-bold font-display">{s.value}</div>
-                <div className="text-xs text-white/60 mt-0.5">{s.label}</div>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-10 space-y-3 text-left">
-            {["Industry-recognized certificates", "Direct internship placements", "1-on-1 expert mentorship"].map((t) => (
-              <div key={t} className="flex items-center gap-3 text-sm text-white/80">
-                <CheckCircle2 className="w-4 h-4 text-white/60 flex-shrink-0" />
-                {t}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      <BrandPanel
+        title="Welcome back to your learning journey"
+        description="Sign in to access your courses, track your progress, view internship applications, and connect with mentors."
+        bullets={[
+          "Industry-recognized certificates",
+          "Direct internship placements",
+          "1-on-1 expert mentorship",
+          "Cancel anytime, learn forever",
+        ]}
+      />
 
       {/* Right: Form */}
-      <div className="flex-1 flex items-center justify-center p-6 lg:p-12 bg-background">
+      <div className="flex-1 flex items-center justify-center p-6 lg:p-12 bg-background relative overflow-hidden">
+        <div className="absolute inset-0 bg-dot-pattern opacity-40" />
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-          className="w-full max-w-md"
+          className="relative w-full max-w-md"
         >
           {/* Mobile logo */}
           <div className="flex justify-center mb-8 lg:hidden">
             <Link href="/" className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl gradient-bg flex items-center justify-center shadow-brand">
+              <div className="w-9 h-9 rounded-xl gradient-bg flex items-center justify-center shadow-brand">
                 <Sparkles className="w-4 h-4 text-white" />
               </div>
               <span className="text-xl font-bold font-display gradient-text">Nexora</span>
@@ -118,7 +107,7 @@ function LoginFormContent() {
           </div>
 
           <div className="mb-8">
-            <h1 className="text-3xl font-bold font-display tracking-tight mb-2">Sign in</h1>
+            <h1 className="text-3xl lg:text-4xl font-bold font-display tracking-tight mb-2">Sign in</h1>
             <p className="text-muted-foreground text-sm">
               Don&apos;t have an account?{" "}
               <Link href="/register" className="text-primary hover:underline font-semibold">
@@ -131,7 +120,7 @@ function LoginFormContent() {
           <div className="space-y-2.5 mb-6">
             <button
               id="google-login-btn"
-              className="w-full flex items-center justify-center gap-2.5 h-11 px-4 rounded-xl border border-border bg-background hover:bg-muted transition-colors text-sm font-medium disabled:opacity-60"
+              className="w-full flex items-center justify-center gap-2.5 h-11 px-4 rounded-xl border border-border bg-background hover:bg-muted transition-colors text-sm font-medium disabled:opacity-60 shadow-sm"
               onClick={() => handleSocialLogin("google")}
               disabled={!!isSocialLoading}
             >
@@ -140,10 +129,8 @@ function LoginFormContent() {
             </button>
           </div>
 
-          {/* Divider */}
           <div className="divider-label mb-6">or sign in with email</div>
 
-          {/* Credentials form */}
           <form id="login-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-1.5">
               <Label htmlFor="email" className="text-sm font-medium">Email address</Label>

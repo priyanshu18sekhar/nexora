@@ -1,56 +1,18 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { ThemeProvider } from "next-themes";
 import { SessionProvider } from "next-auth/react";
 import { Toaster } from "sonner";
-import { PayPalScriptProvider } from "@paypal/react-paypal-js";
-import { paypalConfig } from "@/src/config";
+import { ThemeProvider } from "./theme-provider";
 
 interface ProvidersProps {
   children: React.ReactNode;
 }
 
-function PayPalWrapper({ children }: { children: React.ReactNode }) {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setMounted(true);
-  }, []);
-
-  const showPayPal =
-    mounted &&
-    paypalConfig.clientId &&
-    paypalConfig.clientId !== "your-paypal-client-id" &&
-    paypalConfig.clientId !== "";
-
-  if (!showPayPal) return <>{children}</>;
-
-  return (
-    <PayPalScriptProvider
-      options={{
-        clientId: paypalConfig.clientId,
-        currency: paypalConfig.currency,
-        intent: paypalConfig.intent,
-      }}
-      deferLoading={true}
-    >
-      {children}
-    </PayPalScriptProvider>
-  );
-}
-
 export function Providers({ children }: ProvidersProps) {
   return (
     <SessionProvider>
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="light"
-        enableSystem={false}
-        disableTransitionOnChange
-      >
-        <PayPalWrapper>{children}</PayPalWrapper>
+      <ThemeProvider defaultTheme="light">
+        {children}
         <Toaster
           position="top-right"
           richColors

@@ -9,7 +9,7 @@ import { formatDate } from "@/src/lib/utils";
 
 export default async function StudentLiveClassesPage() {
   const session = await auth();
-  if (!session?.user || session.user.role !== "STUDENT") redirect("/login");
+  if (!session?.user || !["STUDENT","PROFESSIONAL"].includes(session.user.role)) redirect("/login");
 
   // Fetch all classes and student's enrollments
   const [allClasses, enrollments] = await Promise.all([

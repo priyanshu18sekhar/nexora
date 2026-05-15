@@ -9,7 +9,7 @@ import { Badge } from "@/src/components/ui/badge";
 
 export default async function StudentCoursesPage() {
   const session = await auth();
-  if (!session?.user || session.user.role !== "STUDENT") redirect("/login");
+  if (!session?.user || !["STUDENT","PROFESSIONAL"].includes(session.user.role)) redirect("/login");
 
   const enrollments = await db.enrollment.findMany({
     where: { userId: session.user.id },

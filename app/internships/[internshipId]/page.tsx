@@ -1,31 +1,37 @@
 import React from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { Building, MapPin, Briefcase, Clock, Calendar, CheckCircle2, ArrowRight, Share2, Bookmark } from "lucide-react";
-import { Button } from "@/src/components/ui/button";
-import { Badge } from "@/src/components/ui/badge";
-import { Card, CardContent } from "@/src/components/ui/card";
+import {
+  Building, MapPin, Briefcase, Clock, Calendar, CheckCircle2, ChevronRight,
+  Users, IndianRupee, Sparkles, Award,
+} from "lucide-react";
 import { db } from "@/src/lib/db";
 import { formatRelativeTime } from "@/src/lib/utils";
 import { InternshipApplyButton } from "@/src/components/internships/apply-button";
+import { Aurora } from "@/src/components/effects/aurora";
 
 const MOCK_INTERNSHIP = {
   id: "mock-1",
-  title: "Software Engineering Intern - Frontend",
+  title: "Software Engineering Intern — Frontend",
   company: "TechNova Solutions",
   companyLogo: null,
   location: "Bangalore, India",
   isRemote: true,
-  stipend: 500,
+  stipend: 25000,
   duration: "6 Months",
-  status: "OPEN",
-  deadline: new Date(Date.now() + 1000 * 60 * 60 * 24 * 14), // 14 days from now
+  status: "OPEN" as const,
+  deadline: new Date(Date.now() + 1000 * 60 * 60 * 24 * 14),
   openings: 3,
   createdAt: new Date(),
   skills: ["React", "TypeScript", "Next.js", "Tailwind CSS", "Git"],
-  description: "We are looking for a passionate Frontend Engineering Intern to join our core product team. You will be working directly with senior engineers to build user-facing features for our flagship platform used by millions of users.\n\nAs an intern, you won't just be fixing bugs. You will take ownership of entire feature sets from design to deployment. We believe in learning by doing, and you'll get plenty of opportunities to do both.",
-  requirements: "• Currently pursuing a B.Tech/B.E in Computer Science or related field\n• Strong fundamentals in JavaScript/TypeScript, HTML, and CSS\n• Experience with React (Next.js is a plus)\n• Familiarity with state management libraries like Redux or Zustand\n• Good understanding of responsive design principles\n• Excellent problem-solving skills and willingness to learn\n• Available for a 6-month full-time internship",
+  description:
+    "We are looking for a passionate Frontend Engineering Intern to join our core product team. You will be working directly with senior engineers to build user-facing features for our flagship platform used by millions of users.\n\nAs an intern, you won't just be fixing bugs. You will take ownership of entire feature sets from design to deployment.",
+  requirements:
+    "• Currently pursuing a B.Tech/B.E in Computer Science or related field\n• Strong fundamentals in JavaScript/TypeScript, HTML, and CSS\n• Experience with React (Next.js is a plus)\n• Familiarity with state management libraries\n• Good understanding of responsive design principles\n• Available for a 6-month full-time internship",
+  recruiter: { name: "Rohit Kumar", image: null, headline: "Engineering Manager at TechNova" },
 };
+
+const INTERNSHIP_PROGRAM_FEE_INR = 499;
 
 export default async function InternshipDetailsPage({
   params,
@@ -33,157 +39,187 @@ export default async function InternshipDetailsPage({
   params: Promise<{ internshipId: string }>;
 }) {
   const { internshipId } = await params;
-  let internship = null;
+  let internship: typeof MOCK_INTERNSHIP | null = null;
   try {
-    internship = await db.internship.findUnique({
+    const row = await db.internship.findUnique({
       where: { id: internshipId },
-      include: {
-        recruiter: { select: { name: true, image: true, headline: true } }
-      }
+      include: { recruiter: { select: { name: true, image: true, headline: true } } },
     });
-  } catch (error) {
-    console.error("Failed to fetch internship:", error);
+    if (row) internship = row as unknown as typeof MOCK_INTERNSHIP;
+  } catch (err) {
+    console.error("Failed to fetch internship:", err);
   }
 
-  const displayInternship = internship || MOCK_INTERNSHIP;
-
-  if (!displayInternship) {
-    notFound();
-  }
+  const data = internship || MOCK_INTERNSHIP;
+  if (!data) notFound();
 
   return (
-    <div className="pt-24 pb-20 min-h-screen bg-muted/30">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        
-        {/* Header Card */}
-        <Card variant="elevated" className="overflow-hidden">
-          <div className="h-32 gradient-bg"></div>
-          <CardContent className="px-6 sm:px-10 pb-10 pt-0 relative">
-            <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-end -mt-12 mb-6">
-              <div className="w-24 h-24 rounded-2xl bg-card border-4 border-card flex items-center justify-center shrink-0 shadow-lg overflow-hidden">
-                {displayInternship.companyLogo ? (
-                  <img src={displayInternship.companyLogo} alt={displayInternship.company} className="w-full h-full object-cover" />
-                ) : (
-                  <Building className="w-10 h-10 text-muted-foreground" />
-                )}
-              </div>
-              <div className="flex-1 w-full flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <h1 className="text-2xl sm:text-3xl font-bold mb-1">{displayInternship.title}</h1>
-                  <p className="text-lg text-muted-foreground font-medium">{displayInternship.company}</p>
-                </div>
-                <div className="flex items-center gap-3 shrink-0">
-                  <Button variant="outline" size="icon">
-                    <Share2 className="w-4 h-4" />
-                  </Button>
-                  <Button variant="outline" size="icon">
-                    <Bookmark className="w-4 h-4" />
-                  </Button>
-                  <InternshipApplyButton internshipId={displayInternship.id} size="lg" className="px-8 shadow-lg" />
-                </div>
-              </div>
-            </div>
+    <div className="min-h-screen pb-20">
+      {/* Hero */}
+      <section className="relative pt-24 pb-14 overflow-hidden bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 text-white">
+        <Aurora className="opacity-40 mix-blend-screen" />
+        <div className="absolute inset-0 bg-dot-pattern opacity-10" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(99,102,241,0.18),transparent_60%)]" />
 
-            <div className="flex flex-wrap items-center gap-y-4 gap-x-8 py-4 border-y border-border">
-              <div className="flex items-center gap-2">
-                <div className="p-2 rounded-lg bg-primary/10 text-primary">
-                  <MapPin className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground font-medium">Location</p>
-                  <p className="text-sm font-semibold">{displayInternship.location}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-500">
-                  <Briefcase className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground font-medium">Stipend</p>
-                  <p className="text-sm font-semibold">{displayInternship.stipend ? `$${displayInternship.stipend} / month` : "Unpaid"}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="p-2 rounded-lg bg-amber-500/10 text-amber-500">
-                  <Clock className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground font-medium">Duration</p>
-                  <p className="text-sm font-semibold">{displayInternship.duration}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="p-2 rounded-lg bg-blue-500/10 text-blue-500">
-                  <Calendar className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground font-medium">Apply By</p>
-                  <p className="text-sm font-semibold">{displayInternship.deadline ? new Date(displayInternship.deadline).toLocaleDateString() : "Rolling"}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1.5 px-3 py-1 bg-muted rounded-full font-medium text-foreground">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                Actively hiring
-              </span>
-              <span>{displayInternship.openings} openings</span>
-              <span>Posted {formatRelativeTime(displayInternship.createdAt)}</span>
-              {displayInternship.isRemote && (
-                <Badge variant="success">Remote Available</Badge>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Content Tabs/Sections */}
-        <div className="grid sm:grid-cols-3 gap-8">
-          <div className="sm:col-span-2 space-y-8">
-            <Card variant="default">
-              <CardContent className="p-6 sm:p-8 space-y-8">
-                <div>
-                  <h2 className="text-xl font-bold mb-4">About the Internship</h2>
-                  <div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground whitespace-pre-wrap leading-relaxed">
-                    {displayInternship.description}
-                  </div>
-                </div>
-
-                {displayInternship.requirements && (
-                  <div>
-                    <h2 className="text-xl font-bold mb-4">Requirements & Qualifications</h2>
-                    <div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground whitespace-pre-wrap leading-relaxed">
-                      {displayInternship.requirements}
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-2 text-sm text-white/55 mb-5">
+            <Link href="/internships" className="hover:text-white transition-colors">Internships</Link>
+            <ChevronRight className="w-3.5 h-3.5" />
+            <span className="text-white/85 font-medium truncate">{data.company}</span>
           </div>
 
-          <div className="sm:col-span-1 space-y-6">
-            <Card variant="default">
-              <CardContent className="p-6">
-                <h3 className="font-bold mb-4">Required Skills</h3>
-                <div className="flex flex-wrap gap-2">
-                  {displayInternship.skills.map((skill) => (
-                    <span key={skill} className="px-3 py-1.5 rounded-lg bg-muted text-sm font-medium text-muted-foreground">
+          <div className="flex flex-col sm:flex-row gap-6 items-start">
+            <div className="w-20 h-20 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center shrink-0 shadow-xl border border-white/15 overflow-hidden">
+              {data.companyLogo ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={data.companyLogo} alt={data.company} className="w-full h-full object-cover" />
+              ) : (
+                <Building className="w-9 h-9 text-white/80" />
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-display tracking-tight mb-2 leading-tight">
+                {data.title}
+              </h1>
+              <p className="text-lg text-white/80 font-medium mb-4">{data.company}</p>
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
+                <span className="flex items-center gap-1.5 text-white/85">
+                  <MapPin className="w-4 h-4" /> {data.location}
+                </span>
+                <span className="flex items-center gap-1.5 text-white/85">
+                  <Briefcase className="w-4 h-4" /> {data.duration}
+                </span>
+                <span className="flex items-center gap-1.5 text-emerald-300 font-semibold">
+                  <IndianRupee className="w-4 h-4" />
+                  {data.stipend ? `${data.stipend.toLocaleString()}/mo stipend` : "Unpaid"}
+                </span>
+                {data.isRemote && (
+                  <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-400/20 text-emerald-200 border border-emerald-300/30 backdrop-blur-md">
+                    Remote
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-10">
+        <div className="grid lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-6">
+            {/* Quick stats card */}
+            <div className="rounded-2xl border border-border bg-card p-5 shadow-xl">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                {[
+                  { icon: Users,     label: "Openings",  value: `${data.openings ?? 1}` },
+                  { icon: Calendar,  label: "Apply by",  value: data.deadline ? new Date(data.deadline).toLocaleDateString() : "Rolling" },
+                  { icon: Clock,     label: "Posted",    value: formatRelativeTime(data.createdAt) },
+                  { icon: CheckCircle2, label: "Status", value: "Hiring" },
+                ].map((s) => (
+                  <div key={s.label} className="flex items-start gap-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <s.icon className="w-4 h-4 text-primary" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">{s.label}</p>
+                      <p className="text-sm font-semibold truncate">{s.value}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* About */}
+            <div className="rounded-2xl border border-border bg-card p-6 sm:p-8">
+              <h2 className="text-xl font-bold font-display mb-4 flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-primary" />
+                About the internship
+              </h2>
+              <div className="prose prose-sm dark:prose-invert max-w-none text-foreground/75 whitespace-pre-wrap leading-relaxed">
+                {data.description}
+              </div>
+            </div>
+
+            {/* Requirements */}
+            {data.requirements && (
+              <div className="rounded-2xl border border-border bg-card p-6 sm:p-8">
+                <h2 className="text-xl font-bold font-display mb-4">Requirements & qualifications</h2>
+                <div className="prose prose-sm dark:prose-invert max-w-none text-foreground/75 whitespace-pre-wrap leading-relaxed">
+                  {data.requirements}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Sticky sidebar */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-24 space-y-5">
+              <div className="relative">
+                <div className="absolute -inset-1 rounded-3xl bg-gradient-to-tr from-primary/40 via-blue-500/30 to-emerald-500/40 blur-xl opacity-60" />
+                <div className="relative rounded-2xl border border-border bg-card p-6 shadow-2xl overflow-hidden">
+                  <div className="absolute -top-12 -right-12 w-44 h-44 rounded-full bg-primary/10 blur-3xl" />
+                  <div className="relative">
+                    <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground mb-1">Program fee</p>
+                    <div className="flex items-baseline gap-2 mb-1">
+                      <span className="text-3xl font-bold font-display">
+                        <IndianRupee className="inline-block w-6 h-6 -translate-y-1" />
+                        {INTERNSHIP_PROGRAM_FEE_INR}
+                      </span>
+                      <span className="text-sm text-muted-foreground line-through">₹1,499</span>
+                    </div>
+                    <p className="text-xs text-rose-500 font-semibold mb-5">
+                      ⏰ Early-bird offer — saves you ₹1,000
+                    </p>
+
+                    <InternshipApplyButton
+                      internshipId={data.id}
+                      internshipTitle={data.title}
+                      className="w-full gradient-bg text-white shadow-brand rounded-xl h-11 text-sm font-semibold hover:opacity-90"
+                    />
+
+                    <p className="text-center text-xs text-muted-foreground mt-3">
+                      Refundable if not shortlisted within 14 days
+                    </p>
+
+                    <ul className="space-y-3 mt-6 pt-5 border-t border-border text-sm text-foreground/75">
+                      <li className="flex items-center gap-2.5">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                        Direct recruiter feedback
+                      </li>
+                      <li className="flex items-center gap-2.5">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                        Application tracked in dashboard
+                      </li>
+                      <li className="flex items-center gap-2.5">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                        Priority over free applicants
+                      </li>
+                      <li className="flex items-center gap-2.5">
+                        <Award className="w-4 h-4 text-amber-500 flex-shrink-0" />
+                        Earn 300 points on apply
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              {/* Skills */}
+              <div className="rounded-2xl border border-border bg-card p-5">
+                <h3 className="font-bold text-sm mb-3">Required skills</h3>
+                <div className="flex flex-wrap gap-1.5">
+                  {data.skills.map((skill) => (
+                    <span
+                      key={skill}
+                      className="px-2.5 py-1 rounded-lg bg-primary/8 border border-primary/15 text-xs font-medium text-foreground/85"
+                    >
                       {skill}
                     </span>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card variant="elevated" className="gradient-border bg-card">
-              <CardContent className="p-6 text-center">
-                <h3 className="font-bold mb-2">Ready to apply?</h3>
-                <InternshipApplyButton internshipId={displayInternship.id} className="w-full shadow-md" />
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         </div>
-
       </div>
     </div>
   );

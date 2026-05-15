@@ -8,16 +8,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import {
-  Sparkles,
-  Mail,
-  Lock,
-  User,
-  Eye,
-  EyeOff,
-  GraduationCap,
-  Briefcase,
-  Users,
-  Building,
+  Sparkles, Mail, Lock, User, Eye, EyeOff,
+  GraduationCap, Briefcase, ArrowRight,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/src/components/ui/button";
@@ -25,36 +17,11 @@ import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
 import { registerSchema, type RegisterInput } from "@/src/lib/validations/auth";
 import { cn } from "@/src/lib/utils";
+import { BrandPanel } from "@/src/components/auth/brand-panel";
 
 const roles = [
-  {
-    value: "STUDENT",
-    label: "Student",
-    description: "Engineering / college student",
-    icon: GraduationCap,
-    color: "from-violet-500 to-purple-600",
-  },
-  {
-    value: "PROFESSIONAL",
-    label: "Professional",
-    description: "Working professional",
-    icon: Briefcase,
-    color: "from-blue-500 to-cyan-600",
-  },
-  {
-    value: "MENTOR",
-    label: "Mentor",
-    description: "Teach and guide others",
-    icon: Users,
-    color: "from-emerald-500 to-teal-600",
-  },
-  {
-    value: "RECRUITER",
-    label: "Recruiter",
-    description: "Post internship openings",
-    icon: Building,
-    color: "from-amber-500 to-orange-600",
-  },
+  { value: "STUDENT",      label: "Student",      description: "Engineering / college student", icon: GraduationCap, color: "from-violet-500 to-purple-600" },
+  { value: "PROFESSIONAL", label: "Professional", description: "Working professional",          icon: Briefcase,     color: "from-blue-500 to-cyan-600" },
 ];
 
 const GoogleIcon = () => (
@@ -74,16 +41,13 @@ export default function RegisterPage() {
   const [selectedRole, setSelectedRole] = useState<string>("STUDENT");
 
   const {
-    register,
-    handleSubmit,
-    setValue,
+    register, handleSubmit, setValue,
     formState: { errors },
   } = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
     defaultValues: { role: "STUDENT" },
   });
 
-  // Explicitly register the role field
   React.useEffect(() => {
     register("role");
   }, [register]);
@@ -97,7 +61,6 @@ export default function RegisterPage() {
         body: JSON.stringify(data),
       });
       const json = await res.json();
-
       if (!res.ok) {
         toast.error(json.error || "Registration failed. Please try again.");
       } else {
@@ -122,39 +85,49 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-muted/30">
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-xl"
-      >
-        {/* Logo */}
-        <div className="flex justify-center mb-8">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-white" />
-            </div>
-            <span className="text-xl font-bold gradient-text">Nexora</span>
-          </Link>
-        </div>
+    <div className="min-h-screen flex bg-background">
+      <BrandPanel
+        title="Build the career you deserve"
+        description="Create a free account to unlock courses, certificates, and direct access to internships from 300+ hiring partners."
+        bullets={[
+          "Start with free beginner-friendly courses",
+          "Verified certificates for every course",
+          "Apply to exclusive internships",
+          "Lifetime access — learn at your own pace",
+        ]}
+      />
 
-        <div className="bg-card border border-border rounded-2xl p-8 shadow-xl">
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold mb-1">Create your account</h1>
+      <div className="flex-1 flex items-center justify-center p-6 lg:p-12 bg-background relative overflow-hidden">
+        <div className="absolute inset-0 bg-dot-pattern opacity-40" />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+          className="relative w-full max-w-md"
+        >
+          <div className="flex justify-center mb-8 lg:hidden">
+            <Link href="/" className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl gradient-bg flex items-center justify-center shadow-brand">
+                <Sparkles className="w-4 h-4 text-white" />
+              </div>
+              <span className="text-xl font-bold font-display gradient-text">Nexora</span>
+            </Link>
+          </div>
+
+          <div className="mb-8">
+            <h1 className="text-3xl lg:text-4xl font-bold font-display tracking-tight mb-2">Create your account</h1>
             <p className="text-muted-foreground text-sm">
-              Already have an account?{" "}
-              <Link href="/login" className="text-primary hover:underline font-medium">
+              Already have one?{" "}
+              <Link href="/login" className="text-primary hover:underline font-semibold">
                 Sign in
               </Link>
             </p>
           </div>
 
-          {/* Social buttons */}
-          <div className="mb-6">
+          <div className="space-y-2.5 mb-6">
             <button
               type="button"
-              className="w-full flex items-center justify-center gap-2.5 h-11 px-4 rounded-xl border border-border bg-background hover:bg-muted transition-colors text-sm font-medium disabled:opacity-60"
+              className="w-full flex items-center justify-center gap-2.5 h-11 px-4 rounded-xl border border-border bg-background hover:bg-muted transition-colors text-sm font-medium disabled:opacity-60 shadow-sm"
               onClick={() => handleSocialLogin("google")}
               disabled={!!isSocialLoading}
             >
@@ -167,19 +140,11 @@ export default function RegisterPage() {
             </button>
           </div>
 
-          <div className="relative mb-6">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-border" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">Or continue with email</span>
-            </div>
-          </div>
+          <div className="divider-label mb-6">or sign up with email</div>
 
-          <form id="register-form" onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-            {/* Role Selection */}
+          <form id="register-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
-              <Label>I am a...</Label>
+              <Label className="text-sm font-medium">I am a...</Label>
               <div className="grid grid-cols-2 gap-3">
                 {roles.map((role) => (
                   <button
@@ -193,20 +158,16 @@ export default function RegisterPage() {
                     className={cn(
                       "flex items-start gap-3 p-3 rounded-xl border-2 text-left transition-all duration-200",
                       selectedRole === role.value
-                        ? "border-primary bg-primary/5"
+                        ? "border-primary bg-primary/5 shadow-sm"
                         : "border-border hover:border-primary/40 hover:bg-muted"
                     )}
                   >
-                    <div
-                      className={`w-8 h-8 rounded-lg bg-gradient-to-br ${role.color} flex items-center justify-center flex-shrink-0`}
-                    >
+                    <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${role.color} flex items-center justify-center flex-shrink-0 shadow-sm`}>
                       <role.icon className="w-4 h-4 text-white" />
                     </div>
                     <div>
-                      <div className="font-medium text-sm">{role.label}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {role.description}
-                      </div>
+                      <div className="font-semibold text-sm">{role.label}</div>
+                      <div className="text-xs text-muted-foreground">{role.description}</div>
                     </div>
                   </button>
                 ))}
@@ -216,35 +177,34 @@ export default function RegisterPage() {
               )}
             </div>
 
-            {/* Name */}
-            <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="name" className="text-sm font-medium">Full Name</Label>
               <Input
                 id="name"
                 type="text"
                 placeholder="Your full name"
                 leftIcon={<User className="w-4 h-4" />}
                 error={errors.name?.message}
+                className="h-11 rounded-xl"
                 {...register("name")}
               />
             </div>
 
-            {/* Email */}
-            <div className="space-y-2">
-              <Label htmlFor="reg-email">Email Address</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="reg-email" className="text-sm font-medium">Email Address</Label>
               <Input
                 id="reg-email"
                 type="email"
                 placeholder="you@example.com"
                 leftIcon={<Mail className="w-4 h-4" />}
                 error={errors.email?.message}
+                className="h-11 rounded-xl"
                 {...register("email")}
               />
             </div>
 
-            {/* Password */}
-            <div className="space-y-2">
-              <Label htmlFor="reg-password">Password</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="reg-password" className="text-sm font-medium">Password</Label>
               <Input
                 id="reg-password"
                 type={showPassword ? "text" : "password"}
@@ -255,15 +215,13 @@ export default function RegisterPage() {
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     aria-label="Toggle password visibility"
+                    className="hover:text-foreground transition-colors"
                   >
-                    {showPassword ? (
-                      <EyeOff className="w-4 h-4" />
-                    ) : (
-                      <Eye className="w-4 h-4" />
-                    )}
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 }
                 error={errors.password?.message}
+                className="h-11 rounded-xl"
                 {...register("password")}
               />
             </div>
@@ -271,21 +229,21 @@ export default function RegisterPage() {
             <Button
               id="register-submit-btn"
               type="submit"
-              className="w-full"
-              size="lg"
+              className="w-full gradient-bg text-white font-semibold shadow-brand rounded-xl h-11 text-sm hover:opacity-90"
               loading={isLoading}
             >
               Create Account
+              {!isLoading && <ArrowRight className="w-4 h-4 ml-2" />}
             </Button>
           </form>
 
-          <p className="mt-4 text-center text-xs text-muted-foreground">
+          <p className="mt-6 text-center text-xs text-muted-foreground">
             By registering, you agree to our{" "}
-            <Link href="/terms" className="underline">Terms</Link> and{" "}
-            <Link href="/privacy" className="underline">Privacy Policy</Link>
+            <Link href="/terms" className="underline hover:text-foreground">Terms</Link> and{" "}
+            <Link href="/privacy" className="underline hover:text-foreground">Privacy Policy</Link>
           </p>
-        </div>
-      </motion.div>
+        </motion.div>
+      </div>
     </div>
   );
 }

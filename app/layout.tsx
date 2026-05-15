@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
+import Script from "next/script";
 import { Providers } from "@/src/providers";
 import { siteConfig } from "@/src/config";
 import "./globals.css";
@@ -55,6 +56,8 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
+const themeInitScript = `try{var t=localStorage.getItem("nexora-theme");if(t==="dark"){document.documentElement.classList.add("dark")}}catch(_){}`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -67,6 +70,12 @@ export default function RootLayout({
       className={`${inter.variable} ${plusJakarta.variable}`}
     >
       <body className="font-sans antialiased min-h-screen bg-background text-foreground">
+        <Script
+          id="nexora-theme-init"
+          strategy="beforeInteractive"
+        >
+          {themeInitScript}
+        </Script>
         <Providers>
           <Navbar />
           <main className="min-h-screen">{children}</main>

@@ -21,7 +21,7 @@ import {
   Search,
   Settings,
 } from "lucide-react";
-import { useTheme } from "next-themes";
+import { useTheme } from "@/src/providers/theme-provider";
 import { Button } from "@/src/components/ui/button";
 import { Avatar } from "@/src/components/ui/avatar";
 import { cn } from "@/src/lib/utils";

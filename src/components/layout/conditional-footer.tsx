@@ -20,7 +20,9 @@ export function ConditionalFooter() {
     pathname === "/login" ||
     pathname === "/register" ||
     pathname === "/profile" ||
-    pathname.startsWith("/forgot-password");
+    pathname.startsWith("/forgot-password") ||
+    pathname.includes("/learn") ||
+    pathname.includes("/quiz/");
 
   if (hide) return null;
   return <Footer />;

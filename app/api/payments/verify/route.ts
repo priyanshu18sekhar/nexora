@@ -1,0 +1,40 @@
+import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/src/lib/auth";
+import { db } from "@/src/lib/db";
+import crypto from "crypto";
+
+export async function POST(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { razorpay_payment_id, razorpay_order_id, razorpay_signature, courseId } =
+    await req.json();
+
+  if (!razorpay_payment_id || !razorpay_order_id || !razorpay_signature || !courseId) {
+    return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+  }
+
+  const expectedSignature = crypto
+    .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET!)
+    .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+    .digest("hex");
+
+  if (expectedSignature !== razorpay_signature) {
+    return NextResponse.json({ error: "Invalid payment signature" }, { status: 400 });
+  }
+
+  await db.payment.updateMany({
+    where: { providerOrderId: razorpay_order_id, userId: session.user.id! },
+    data: { status: "COMPLETED", providerTxnId: razorpay_payment_id },
+  });
+
+  const enrollment = await db.enrollment.upsert({
+    where: { userId_courseId: { userId: session.user.id!, courseId } },
+    create: { userId: session.user.id!, courseId, status: "ACTIVE" },
+    update: { status: "ACTIVE" },
+  });
+
+  return NextResponse.json({ success: true, enrollmentId: enrollment.id });
+}
